@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriMatch — Merchant Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="nav">
+    <a class="nav__brand" href="merchant-dashboard.html">🌾 AgriMatch</a>
+    <div class="nav__right">
+      <a class="nav__link" href="merchant-dashboard.html">Dashboard</a>
+      <button class="nav__logout" id="btn-logout" type="button">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-wrap page-wrap--m" id="merchant-dash">
+
+    <!-- Welcome -->
+    <div class="banner banner--merchant">
+      <p class="banner__greeting" id="greeting">Welcome!</p>
+      <p class="banner__hint">Find the best farmers near your delivery location.</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="dash-grid">
+      <a class="dash-card" href="find-farmers.html">
+        <span class="dash-card__icon">🔍</span>
+        <span class="dash-card__label">Find Farmers</span>
+      </a>
+      <a class="dash-card" href="#" id="card-orders">
+        <span class="dash-card__icon">📑</span>
+        <span class="dash-card__label">My Orders</span>
+      </a>
+    </div>
+
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/merchant.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      Utils.$('#card-orders')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('Orders view is coming soon!');
+      });
+    });
+  </script>
+</body>
+</html>

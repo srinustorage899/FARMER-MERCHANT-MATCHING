@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriMatch — Upload Crop</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="nav">
+    <a class="nav__brand" href="farmer-dashboard.html">🌾 AgriMatch</a>
+    <div class="nav__right">
+      <a class="nav__link" href="farmer-dashboard.html">Dashboard</a>
+      <button class="nav__logout" id="btn-logout" type="button">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+
+    <a class="back" href="farmer-dashboard.html">← Back to Dashboard</a>
+
+    <div class="card">
+      <h2 class="card__header">Upload Crop Listing</h2>
+
+      <!-- GPS status -->
+      <div class="loc-status loc-status--fetching" id="loc-status">
+        <span class="spinner"></span> Fetching location…
+      </div>
+
+      <!-- Manual address fallback (hidden by default) -->
+      <div class="manual-addr" id="manual-addr">
+        <div class="fg">
+          <label class="fg__label" for="manual-input">Enter your address manually</label>
+          <input class="fg__input" type="text" id="manual-input"
+                 placeholder="e.g. Nashik, Maharashtra" />
+        </div>
+      </div>
+
+      <form class="form mt-2" id="upload-form" novalidate>
+        <div class="fg">
+          <label class="fg__label" for="crop">Crop</label>
+          <select class="fg__select" id="crop" required>
+            <option value="" disabled selected>Select a crop</option>
+            <option value="Tomato">Tomato</option>
+            <option value="Onion">Onion</option>
+            <option value="Potato">Potato</option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label class="fg__label" for="quantity">Quantity (kg)</label>
+          <input class="fg__input" type="number" id="quantity"
+                 placeholder="e.g. 500" min="1" step="1" required />
+        </div>
+
+        <div class="fg">
+          <label class="fg__label" for="price">Price per kg (₹)</label>
+          <input class="fg__input" type="number" id="price"
+                 placeholder="e.g. 25" min="0.01" step="0.01" required />
+        </div>
+
+        <div class="msg" id="upload-msg"></div>
+
+        <button class="btn btn--orange btn--block" id="btn-upload" type="submit" disabled>
+          Upload Listing
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- Scripts: load order matters -->
+  <script src="js/utils.js"></script>
+  <script src="js/location.js"></script>
+  <script src="js/farmer.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const session = Utils.requireAuth();
+      if (!session) return;
+      Utils.$('#btn-logout').addEventListener('click', Utils.logout);
+    });
+  </script>
+</body>
+</html>

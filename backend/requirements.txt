@@ -1,0 +1,19 @@
+# ─── AgriMatch Backend ───────────────────────────────────────────────────
+# Core
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+
+# MongoDB
+motor==3.6.0          # async driver (for FastAPI routes)
+pymongo>=4.9,<4.10    # sync driver  (for background worker thread) — constrained by motor
+
+# Redis
+redis==5.2.1
+
+# Vector search
+hnswlib==0.8.0
+numpy==2.2.1
+
+# CORS & static files (bundled with FastAPI/Starlette, listed for clarity)
+# starlette already included via fastapi

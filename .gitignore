@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Docker volumes (local data)
+mongo_data/
+redis_data/
+
+# HNSW index files (generated, can be rebuilt)
+# Uncomment line below if you want to exclude them:
+# backend/data/hnsw_indices/
+
+# Byte-compiled
+*.egg-info/
+dist/
+build/
+
+# Logs
+*.log

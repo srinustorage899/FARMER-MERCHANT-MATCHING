@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriMatch — Find Farmers</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="nav">
+    <a class="nav__brand" href="merchant-dashboard.html">🌾 AgriMatch</a>
+    <div class="nav__right">
+      <a class="nav__link" href="merchant-dashboard.html">Dashboard</a>
+      <button class="nav__logout" id="btn-logout" type="button">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-wrap page-wrap--l">
+
+    <a class="back" href="merchant-dashboard.html">← Back to Dashboard</a>
+
+    <h1 class="card__header" style="text-align:left;margin-bottom:1.25rem;font-size:1.35rem">Find Farmers Near You</h1>
+
+    <div class="search-layout">
+
+      <!-- ═══ Left: Search Panel ═══ -->
+      <aside class="search-panel">
+        <h2 class="search-panel__title">🔍 Search Farmers</h2>
+
+        <!-- Delivery location -->
+        <div class="fg">
+          <span class="fg__label">Delivery Location</span>
+          <div class="loc-status loc-status--fetching" id="loc-status">
+            <span class="spinner"></span> Fetching location…
+          </div>
+        </div>
+
+        <form class="form mt-2" id="search-form" novalidate>
+
+          <!-- Crop -->
+          <div class="fg">
+            <label class="fg__label" for="s-crop">Crop</label>
+            <select class="fg__select" id="s-crop" required>
+              <option value="" disabled selected>Select a crop</option>
+              <option value="Tomato">Tomato</option>
+              <option value="Onion">Onion</option>
+              <option value="Potato">Potato</option>
+            </select>
+          </div>
+
+          <!-- Quantity -->
+          <div class="fg">
+            <label class="fg__label" for="s-quantity">Required Quantity (kg)</label>
+            <input class="fg__input" type="number" id="s-quantity"
+                   placeholder="e.g. 500" min="1" step="1" required />
+          </div>
+
+          <!-- Max price -->
+          <div class="fg">
+            <label class="fg__label" for="s-max-price">Max Price per kg (₹)</label>
+            <input class="fg__input" type="number" id="s-max-price"
+                   placeholder="e.g. 30" min="0.01" step="0.01" required />
+          </div>
+
+          <!-- Distance radius slider -->
+          <div class="fg">
+            <label class="fg__label">Distance Radius</label>
+            <div class="range-wrap">
+              <div class="range-wrap__row">
+                <input class="range-wrap__input" type="range" id="s-radius"
+                       min="10" max="500" step="10" value="100" />
+                <span class="range-wrap__val" id="s-radius-val">100 km</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sort -->
+          <div class="fg">
+            <label class="fg__label" for="s-sort">Sort By</label>
+            <select class="fg__select" id="s-sort">
+              <option value="price">Price (Low → High)</option>
+              <option value="distance">Distance (Nearest)</option>
+              <option value="quantity">Quantity (Most)</option>
+            </select>
+          </div>
+
+          <div class="msg" id="search-msg"></div>
+
+          <button class="btn btn--blue btn--block" id="btn-search" type="submit" disabled>
+            Search Farmers
+          </button>
+        </form>
+      </aside>
+
+      <!-- ═══ Right: Results Area ═══ -->
+      <main class="results-area" id="results-area">
+        <div class="empty">
+          <span class="empty__icon">🌾</span>
+          <p class="empty__title">Ready to search</p>
+          <p class="empty__desc">Set your delivery location and filters to find nearby farmers with the best prices.</p>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/location.js"></script>
+  <script src="js/search.js"></script>
+</body>
+</html>

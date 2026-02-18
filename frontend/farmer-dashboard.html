@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriMatch — Farmer Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="nav">
+    <a class="nav__brand" href="farmer-dashboard.html">🌾 AgriMatch</a>
+    <div class="nav__right">
+      <a class="nav__link" href="farmer-dashboard.html">Dashboard</a>
+      <button class="nav__logout" id="btn-logout" type="button">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-wrap page-wrap--m">
+
+    <!-- Welcome -->
+    <div class="banner">
+      <p class="banner__greeting" id="greeting">Welcome back!</p>
+      <p class="banner__hint">Manage your crop listings and connect with merchants.</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="dash-grid">
+      <a class="dash-card" href="upload-crop.html">
+        <span class="dash-card__icon">📤</span>
+        <span class="dash-card__label">Upload Crop</span>
+      </a>
+      <a class="dash-card" href="#" id="card-listings">
+        <span class="dash-card__icon">📋</span>
+        <span class="dash-card__label">View Listings</span>
+      </a>
+    </div>
+
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const session = Utils.requireAuth();
+      if (!session) return;
+
+      Utils.$('#greeting').textContent = `Welcome back, ${session.name}!`;
+      Utils.$('#btn-logout').addEventListener('click', Utils.logout);
+
+      Utils.$('#card-listings').addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('Listings view is coming soon!');
+      });
+    });
+  </script>
+</body>
+</html>
