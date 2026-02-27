@@ -1,0 +1,9 @@
+{
+  "next_id": 1,
+  "id_to_listing": {
+    "0": "6c843570-ce66-4c90-b8e2-fb64fbc15a9e"
+  },
+  "listing_to_id": {
+    "6c843570-ce66-4c90-b8e2-fb64fbc15a9e": 0
+  }
+}

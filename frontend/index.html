@@ -1,92 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AgriMatch — Login</title>
-  <link rel="stylesheet" href="css/styles.css" />
-</head>
-<body>
-
-  <div class="page-wrap">
-
-    <!-- Brand -->
-    <header class="brand">
-      <div class="brand__icon">🌾</div>
-      <h1 class="brand__title">AgriMatch</h1>
-      <p class="brand__sub">Connecting Farmers &amp; Merchants</p>
-    </header>
-
-    <div class="card">
-
-      <!-- Tabs -->
-      <div class="tabs">
-        <button class="tabs__btn tabs__btn--active" id="tab-login" type="button">Login</button>
-        <button class="tabs__btn" id="tab-signup" type="button">Sign Up</button>
-      </div>
-
-      <!-- ═══ Login Form ═══ -->
-      <form class="form" id="form-login" novalidate>
-        <div class="fg">
-          <label class="fg__label" for="login-email">Email</label>
-          <input class="fg__input" type="email" id="login-email"
-                 placeholder="you@example.com" autocomplete="email" required />
-        </div>
-        <div class="fg">
-          <label class="fg__label" for="login-password">Password</label>
-          <input class="fg__input" type="password" id="login-password"
-                 placeholder="••••••••" autocomplete="current-password" required />
-        </div>
-        <div class="msg" id="msg-login"></div>
-        <button class="btn btn--green btn--block" type="submit">Login</button>
-      </form>
-
-      <!-- ═══ Signup Form ═══ -->
-      <form class="form form--hidden" id="form-signup" novalidate>
-        <div class="fg">
-          <label class="fg__label" for="signup-name">Full Name</label>
-          <input class="fg__input" type="text" id="signup-name"
-                 placeholder="John Doe" autocomplete="name" required />
-        </div>
-        <div class="fg">
-          <label class="fg__label" for="signup-email">Email</label>
-          <input class="fg__input" type="email" id="signup-email"
-                 placeholder="you@example.com" autocomplete="email" required />
-        </div>
-        <div class="fg">
-          <label class="fg__label" for="signup-password">Password</label>
-          <input class="fg__input" type="password" id="signup-password"
-                 placeholder="Min. 6 characters" autocomplete="new-password" required />
-        </div>
-
-        <!-- Role selector -->
-        <div class="fg">
-          <span class="fg__label">I am a…</span>
-          <div class="role-sel">
-            <div class="role-sel__opt">
-              <input class="role-sel__radio" type="radio" name="role" id="role-farmer" value="farmer" />
-              <label class="role-sel__label" for="role-farmer">
-                <span class="role-sel__icon">🧑‍🌾</span> Farmer
-              </label>
-            </div>
-            <div class="role-sel__opt">
-              <input class="role-sel__radio" type="radio" name="role" id="role-merchant" value="merchant" />
-              <label class="role-sel__label" for="role-merchant">
-                <span class="role-sel__icon">🏪</span> Merchant
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="msg" id="msg-signup"></div>
-        <button class="btn btn--green btn--block" type="submit">Create Account</button>
-      </form>
-
-    </div>
-  </div>
-
-  <!-- Scripts: utils must load before auth -->
-  <script src="js/utils.js"></script>
-  <script src="js/auth.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

@@ -12,7 +12,7 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 
-from app.config import SUPPORTED_CROPS
+from app.config import SUPPORTED_CROPS, DEFAULT_SEARCH_RADIUS
 from app.models.merchant_model import MerchantSearchRequest, MerchantSearchResponse
 from app.services.vector_service import search_farmers
 
@@ -31,8 +31,8 @@ async def search_listings(payload: MerchantSearchRequest):
         3. MongoDB fetch
         4. Filter: active + MSP + price budget
         5. Haversine distance computation
-        6. Radius filter
-        7. Exact rerank by distance
+        6. Radius filter (auto-set to 500 km if not specified)
+        7. Composite rerank by distance + price
         8. Return top 5
     """
 
@@ -43,13 +43,16 @@ async def search_listings(payload: MerchantSearchRequest):
             detail=f"Unsupported crop '{payload.crop}'. Choose from: {SUPPORTED_CROPS}",
         )
 
-    # ── Delegate to the service layer ───────────────────────────────────
+    # ── Resolve radius (auto-default if not provided) ────────────────
+    effective_radius = payload.radius if payload.radius is not None else DEFAULT_SEARCH_RADIUS
+
+    # ── Delegate to the service layer ─────────────────────────────
     try:
         results = await search_farmers(
             crop=payload.crop,
             quantity=payload.quantity,
             max_price=payload.max_price,
-            radius=payload.radius,
+            radius=effective_radius,
             latitude=payload.location.latitude,
             longitude=payload.location.longitude,
         )

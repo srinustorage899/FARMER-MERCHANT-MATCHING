@@ -36,7 +36,25 @@ HNSW_INDEX_DIR: Path = Path(os.getenv("HNSW_INDEX_DIR", "data/hnsw_indices"))
 
 # ─── Supported crops ────────────────────────────────────────────────────────
 # Order matters — it determines the one-hot encoding positions.
-SUPPORTED_CROPS: list[str] = ["Tomato", "Onion", "Potato"]
+SUPPORTED_CROPS: list[str] = [
+    # Vegetables
+    "Tomato", "Onion", "Potato", "Brinjal", "Cabbage",
+    "Carrot", "Cauliflower", "Green Chilli", "Spinach", "Peas",
+    "Cucumber", "Bitter Gourd", "Okra", "Garlic", "Ginger",
+    # Grains & Cereals
+    "Rice", "Wheat", "Maize", "Bajra", "Jowar",
+    "Ragi", "Barley",
+    # Fruits
+    "Mango", "Banana", "Apple", "Grapes", "Orange",
+    "Papaya", "Pomegranate", "Watermelon", "Guava", "Lemon",
+    # Pulses & Oilseeds
+    "Soybean", "Groundnut", "Mustard", "Chana", "Moong",
+    "Urad", "Tur", "Sunflower",
+    # Cash Crops
+    "Sugarcane", "Cotton", "Jute", "Tea", "Coffee",
+    # Spices
+    "Turmeric", "Cumin", "Coriander", "Black Pepper", "Cardamom",
+]
 
 # ─── Normalisation ranges (used for vector encoding) ────────────────────────
 # Latitude:  -90 → 90   → normalised to [0, 1]
@@ -50,6 +68,16 @@ NORM_QTY_RANGE: tuple[float, float] = (0.0, 50_000.0)
 
 # ─── Search / reranking ────────────────────────────────────────────────────
 TOP_RESULTS: int = 5  # final results returned to merchant after reranking
+
+# Default search radius (km) when the merchant doesn't specify one.
+# HNSW handles proximity via vectors; this is a safety ceiling for the
+# exact Haversine reranking phase so we don't return absurdly far results.
+DEFAULT_SEARCH_RADIUS: float = float(os.getenv("DEFAULT_SEARCH_RADIUS", "500"))
+
+# Composite reranking weights (must sum to 1.0).
+# Adjusting these changes how much distance vs. price matters in final ranking.
+RERANK_WEIGHT_DISTANCE: float = float(os.getenv("RERANK_WEIGHT_DISTANCE", "0.6"))
+RERANK_WEIGHT_PRICE: float = float(os.getenv("RERANK_WEIGHT_PRICE", "0.4"))
 
 # ─── Vector dimensionality (auto-derived) ──────────────────────────────────
 # 4 numeric features + len(SUPPORTED_CROPS) one-hot

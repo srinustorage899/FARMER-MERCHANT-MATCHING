@@ -15,7 +15,7 @@ class MerchantSearchRequest(BaseModel):
     crop: str = Field(..., min_length=1, description="Crop to search for")
     quantity: float = Field(..., gt=0, description="Required quantity in kg")
     max_price: float = Field(..., gt=0, description="Maximum acceptable price per kg (₹)")
-    radius: float = Field(..., gt=0, description="Search radius in km")
+    radius: Optional[float] = Field(None, gt=0, description="Search radius in km (auto-set by backend if omitted)")
     location: LocationSchema
 
 
@@ -28,6 +28,8 @@ class MatchedFarmerResult(BaseModel):
     latitude: float
     longitude: float
     distance_km: float = Field(..., description="Haversine distance in km")
+    farmer_name: str = Field("Unknown Farmer", description="Display name of the farmer")
+    match_score: float = Field(0.0, description="Composite score (0=best). Lower = better match (weighted distance + price)")
 
 
 class MerchantSearchResponse(BaseModel):

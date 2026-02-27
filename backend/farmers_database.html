@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farmers Database — AgriMatch</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#f5f7fa;color:#333}
+
+/* ── Header ── */
+.hdr{background:#fff;padding:24px 32px 18px;border-bottom:2px solid #e0e0e0;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.hdr-left h1{font-size:24px;color:#1a1a2e}
+.hdr-left h1 span{color:#2e7d32}
+.hdr-left p{color:#666;font-size:13px;margin-top:2px}
+.hdr-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* ── Controls ── */
+.filter-bar{display:flex;align-items:center;gap:10px;padding:14px 32px;background:#fff;border-bottom:1px solid #e0e0e0;flex-wrap:wrap}
+select,input[type="text"]{padding:8px 14px;border:1px solid #ccc;border-radius:8px;font-size:13px;color:#333;background:#fff;outline:none;transition:border .2s}
+select:focus,input:focus{border-color:#1565c0}
+.btn{padding:9px 22px;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:#1565c0;color:#fff;box-shadow:0 2px 6px rgba(21,101,192,.25)}
+.btn-primary:hover{background:#1256a0}
+.btn-danger{background:#c62828;color:#fff}
+.btn-danger:hover{background:#a01e1e}
+.btn-outline{background:#fff;color:#555;border:1px solid #ccc}
+.btn-outline:hover{background:#f5f5f5;border-color:#999}
+
+/* ── Stats ── */
+.stats{display:flex;gap:16px;padding:16px 32px;flex-wrap:wrap}
+.stat-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 24px;min-width:140px;flex:1;max-width:220px}
+.stat-card .num{font-size:28px;font-weight:800;color:#1565c0}
+.stat-card .lbl{font-size:12px;color:#888;margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.stat-card.green .num{color:#2e7d32}
+.stat-card.orange .num{color:#e65100}
+.stat-card.purple .num{color:#6a1b9a}
+
+/* ── Table ── */
+.table-wrap{padding:0 32px 32px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);font-size:13px}
+thead{background:#f0f4f8}
+th{text-align:left;padding:12px 16px;color:#555;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e0e0e0;white-space:nowrap}
+td{padding:11px 16px;border-bottom:1px solid #f0f0f0;color:#444}
+tr:hover{background:#f8fbff}
+tr:last-child td{border-bottom:none}
+
+/* Row states */
+tr.inactive{opacity:.5;background:#fafafa}
+
+/* ── Badges ── */
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.3px}
+.badge-crop{background:#e8f5e9;color:#2e7d32}
+.badge-active{background:#e3f2fd;color:#1565c0}
+.badge-inactive{background:#fce4ec;color:#c62828}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:60px 20px;color:#999}
+.empty h2{font-size:20px;margin-bottom:8px;color:#666}
+.empty p{font-size:14px}
+
+/* ── Loading ── */
+.loading{text-align:center;padding:60px 20px;color:#1565c0;font-size:15px}
+.loading .spinner{display:inline-block;width:28px;height:28px;border:3px solid #e0e0e0;border-top-color:#1565c0;border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Connection banner ── */
+.conn-status{padding:8px 32px;font-size:12px;font-weight:600;display:none}
+.conn-status.ok{background:#e8f5e9;color:#2e7d32;display:block}
+.conn-status.err{background:#fce4ec;color:#c62828;display:block}
+
+/* ── Footer ── */
+.footer{text-align:center;padding:16px;color:#aaa;font-size:11px;border-top:1px solid #eee;margin-top:12px}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;right:24px;background:#333;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .3s;z-index:1000;pointer-events:none}
+.toast.show{opacity:1}
+
+/* ── Location cell ── */
+.loc-cell{display:flex;flex-direction:column;gap:2px}
+.loc-name{font-weight:600;color:#1a1a2e;font-size:12px;white-space:nowrap}
+.loc-coords{font-size:10px;color:#999;font-family:'Cascadia Code','Fira Code',monospace}
+.loc-loading{color:#1565c0;font-size:11px;font-style:italic}
+.loc-pin{margin-right:3px}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .hdr,.filter-bar,.stats,.table-wrap{padding-left:16px;padding-right:16px}
+  .stats{flex-direction:column}
+  .stat-card{max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ─── Connection status ─── -->
+<div class="conn-status" id="connStatus"></div>
+
+<!-- ─── Header ─── -->
+<div class="hdr">
+  <div class="hdr-left">
+    <h1>&#127806; Farmers <span>Database</span></h1>
+    <p>Live view of all crop listings stored in MongoDB &bull; Collection: <strong>listings</strong></p>
+  </div>
+  <div class="hdr-right">
+    <button class="btn btn-primary" onclick="fetchListings()">&#x21bb; Refresh</button>
+    <span style="font-size:12px;color:#999" id="lastRefresh"></span>
+  </div>
+</div>
+
+<!-- ─── Filters ─── -->
+<div class="filter-bar">
+  <label style="font-size:12px;color:#666;font-weight:600">Filter by crop:</label>
+  <select id="cropFilter" onchange="applyFilters()">
+    <option value="">All Crops</option>
+  </select>
+  <label style="font-size:12px;color:#666;font-weight:600;margin-left:8px">Search:</label>
+  <input type="text" id="searchBox" placeholder="Farmer name or listing ID..." style="width:220px" oninput="applyFilters()">
+  <label style="font-size:12px;color:#666;font-weight:600;margin-left:8px">
+    <input type="checkbox" id="showInactive" onchange="fetchListings()" style="margin-right:4px"> Show inactive
+  </label>
+  <div style="flex:1"></div>
+  <span style="font-size:12px;color:#888" id="filterCount"></span>
+</div>
+
+<!-- ─── Stats ─── -->
+<div class="stats" id="statsBar">
+  <div class="stat-card"><div class="num" id="statTotal">–</div><div class="lbl">Total Listings</div></div>
+  <div class="stat-card green"><div class="num" id="statActive">–</div><div class="lbl">Active</div></div>
+  <div class="stat-card orange"><div class="num" id="statCrops">–</div><div class="lbl">Unique Crops</div></div>
+  <div class="stat-card purple"><div class="num" id="statAvgPrice">–</div><div class="lbl">Avg Price (₹/kg)</div></div>
+</div>
+
+<!-- ─── Table ─── -->
+<div class="table-wrap">
+  <div class="loading" id="loadingMsg">
+    <div class="spinner"></div><br>Connecting to MongoDB...
+  </div>
+  <div class="empty" id="emptyMsg" style="display:none">
+    <h2>No listings found</h2>
+    <p>Upload crops from the farmer dashboard or run <code>python seed_test_data.py</code></p>
+  </div>
+  <table id="farmersTable" style="display:none">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Listing ID</th>
+        <th>Crop</th>
+        <th>Farmer</th>
+        <th>Quantity (kg)</th>
+        <th>Price (₹/kg)</th>
+        <th>Location</th>
+        <th>Status</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<div class="footer">
+  AgriMatch &bull; MongoDB Database Viewer &bull; Data updates in real-time on refresh
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = 'http://localhost:8000';
+let allListings = [];
+
+async function fetchListings() {
+  const loading = document.getElementById('loadingMsg');
+  const empty = document.getElementById('emptyMsg');
+  const table = document.getElementById('farmersTable');
+  const conn = document.getElementById('connStatus');
+
+  loading.style.display = 'block';
+  empty.style.display = 'none';
+  table.style.display = 'none';
+
+  const activeOnly = !document.getElementById('showInactive').checked;
+
+  try {
+    const url = `${API_BASE}/api/farmer/listings?active_only=${activeOnly}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    conn.textContent = `✓ Connected to MongoDB — ${data.count} document(s) in "listings" collection`;
+    conn.className = 'conn-status ok';
+
+    allListings = data.listings || [];
+    populateCropFilter();
+    applyFilters();
+    updateStats();
+
+    document.getElementById('lastRefresh').textContent = 'Last refresh: ' + new Date().toLocaleTimeString();
+    loading.style.display = 'none';
+
+  } catch (err) {
+    loading.style.display = 'none';
+    conn.textContent = `✗ Cannot connect to backend at ${API_BASE} — ${err.message}`;
+    conn.className = 'conn-status err';
+    showToast('Failed to load data. Is the backend running?');
+  }
+}
+
+function populateCropFilter() {
+  const select = document.getElementById('cropFilter');
+  const current = select.value;
+  const crops = [...new Set(allListings.map(l => l.crop))].sort();
+
+  // Preserve the first option
+  select.innerHTML = '<option value="">All Crops</option>';
+  crops.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    if (c === current) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+function applyFilters() {
+  const crop = document.getElementById('cropFilter').value;
+  const search = document.getElementById('searchBox').value.toLowerCase().trim();
+
+  let filtered = allListings;
+  if (crop) filtered = filtered.filter(l => l.crop === crop);
+  if (search) filtered = filtered.filter(l =>
+    (l.farmer_name || '').toLowerCase().includes(search) ||
+    (l.listing_id || '').toLowerCase().includes(search) ||
+    (l.crop || '').toLowerCase().includes(search)
+  );
+
+  renderTable(filtered);
+  document.getElementById('filterCount').textContent = `Showing ${filtered.length} of ${allListings.length}`;
+}
+
+function renderTable(listings) {
+  const table = document.getElementById('farmersTable');
+  const empty = document.getElementById('emptyMsg');
+  const tbody = document.getElementById('tableBody');
+
+  if (listings.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  table.style.display = 'table';
+
+  tbody.innerHTML = listings.map((l, i) => {
+    const isActive = l.active !== false;
+    const statusBadge = isActive
+      ? '<span class="badge badge-active">Active</span>'
+      : '<span class="badge badge-inactive">Inactive</span>';
+    const rowClass = isActive ? '' : ' class="inactive"';
+    const created = l.created_at ? new Date(l.created_at).toLocaleString() : '—';
+    const name = l.farmer_name || '<em style="color:#aaa">Not provided</em>';
+    const shortId = (l.listing_id || '—').substring(0, 8) + '…';
+
+    const lat = l.location?.latitude;
+    const lon = l.location?.longitude;
+    const coordStr = (lat != null && lon != null) ? `${lat.toFixed(4)}, ${lon.toFixed(4)}` : '—';
+    const locId = `loc-${l.listing_id}`;
+
+    // Check if we already have a cached place name
+    let locHtml;
+    if (lat != null && lon != null && _geoCache[cacheKey(lat, lon)]) {
+      const pn = _geoCache[cacheKey(lat, lon)];
+      locHtml = `<div class="loc-cell"><span class="loc-name"><span class="loc-pin">📍</span>${pn}</span><span class="loc-coords">${coordStr}</span></div>`;
+    } else {
+      locHtml = `<div class="loc-cell"><span class="loc-loading">resolving…</span><span class="loc-coords">${coordStr}</span></div>`;
+    }
+
+    return `<tr${rowClass}>
+      <td style="color:#aaa;font-weight:600">${i + 1}</td>
+      <td style="font-family:'Cascadia Code','Fira Code',monospace;font-size:11px;color:#1565c0" title="${l.listing_id}">${shortId}</td>
+      <td><span class="badge badge-crop">${l.crop}</span></td>
+      <td>${name}</td>
+      <td style="font-weight:600">${formatNum(l.quantity)}</td>
+      <td style="font-weight:600;color:#2e7d32">₹${formatNum(l.price)}</td>
+      <td id="${locId}">${locHtml}</td>
+      <td>${statusBadge}</td>
+      <td style="font-size:11px;color:#888">${created}</td>
+    </tr>`;
+  }).join('');
+
+  // Kick off reverse geocoding for visible listings
+  queueReverseGeocode(listings);
+}
+
+function updateStats() {
+  const active = allListings.filter(l => l.active !== false);
+  const crops = new Set(allListings.map(l => l.crop));
+  const avgPrice = allListings.length > 0
+    ? (allListings.reduce((s, l) => s + (l.price || 0), 0) / allListings.length).toFixed(1)
+    : '—';
+
+  document.getElementById('statTotal').textContent = allListings.length;
+  document.getElementById('statActive').textContent = active.length;
+  document.getElementById('statCrops').textContent = crops.size;
+  document.getElementById('statAvgPrice').textContent = avgPrice === '—' ? '—' : '₹' + avgPrice;
+}
+
+function formatNum(n) {
+  if (n == null) return '—';
+  return Number(n).toLocaleString('en-IN');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Reverse Geocoding — Nominatim (OpenStreetMap)
+   Caches results by rounded coords so nearby points share one lookup.
+   Rate-limited to 1 request/second per Nominatim usage policy.
+   ═══════════════════════════════════════════════════════════════════ */
+
+const _geoCache = {};          // "lat,lon" → place name
+let _geoQueue = [];            // { lat, lon, ids[] }
+let _geoRunning = false;
+
+function cacheKey(lat, lon) {
+  // Round to ~1 km precision for cache grouping
+  return `${lat.toFixed(2)},${lon.toFixed(2)}`;
+}
+
+function queueReverseGeocode(listings) {
+  // Group by rounded coordinates to minimize API calls
+  const groups = {};
+  for (const l of listings) {
+    const lat = l.location?.latitude;
+    const lon = l.location?.longitude;
+    if (lat == null || lon == null) continue;
+    const key = cacheKey(lat, lon);
+
+    // Already cached → apply immediately
+    if (_geoCache[key]) {
+      setLocationCell(l.listing_id, _geoCache[key], lat, lon);
+      continue;
+    }
+
+    if (!groups[key]) groups[key] = { lat, lon, ids: [] };
+    groups[key].ids.push(l.listing_id);
+  }
+
+  // Queue uncached groups
+  for (const key in groups) {
+    _geoQueue.push(groups[key]);
+  }
+
+  if (!_geoRunning) processGeoQueue();
+}
+
+async function processGeoQueue() {
+  _geoRunning = true;
+  while (_geoQueue.length > 0) {
+    const item = _geoQueue.shift();
+    const key = cacheKey(item.lat, item.lon);
+
+    // Double-check cache (may have been filled by prior iteration)
+    if (_geoCache[key]) {
+      for (const id of item.ids) setLocationCell(id, _geoCache[key], item.lat, item.lon);
+      continue;
+    }
+
+    try {
+      const url = `https://nominatim.openstreetmap.org/reverse?lat=${item.lat}&lon=${item.lon}&format=json&zoom=10&addressdetails=1`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      if (res.ok) {
+        const data = await res.json();
+        const addr = data.address || {};
+        // Build a readable name: village/town/city + district/state
+        const parts = [
+          addr.village || addr.town || addr.city || addr.county || '',
+          addr.state_district || addr.district || '',
+          addr.state || ''
+        ].filter(Boolean);
+        // Deduplicate consecutive identical parts
+        const deduped = parts.filter((p, i) => i === 0 || p !== parts[i - 1]);
+        const placeName = deduped.slice(0, 3).join(', ') || data.display_name?.split(',').slice(0, 2).join(', ') || 'Unknown';
+        _geoCache[key] = placeName;
+        for (const id of item.ids) setLocationCell(id, placeName, item.lat, item.lon);
+      }
+    } catch (e) {
+      // On error, just leave coordinates showing
+      console.warn('Geocode failed for', item.lat, item.lon, e);
+      for (const id of item.ids) {
+        setLocationCell(id, null, item.lat, item.lon);
+      }
+    }
+
+    // Rate limit: 1 request per second
+    await new Promise(r => setTimeout(r, 1100));
+  }
+  _geoRunning = false;
+}
+
+function setLocationCell(listingId, placeName, lat, lon) {
+  const cell = document.getElementById(`loc-${listingId}`);
+  if (!cell) return;
+  const coordStr = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+  if (placeName) {
+    cell.innerHTML = `<div class="loc-cell">
+      <span class="loc-name"><span class="loc-pin">📍</span>${placeName}</span>
+      <span class="loc-coords">${coordStr}</span>
+    </div>`;
+  } else {
+    cell.innerHTML = `<div class="loc-cell">
+      <span class="loc-coords">${coordStr}</span>
+    </div>`;
+  }
+}
+
+// Auto-refresh every 30 seconds
+let autoTimer = setInterval(fetchListings, 30000);
+
+// Initial load
+fetchListings();
+</script>
+</body>
+</html>

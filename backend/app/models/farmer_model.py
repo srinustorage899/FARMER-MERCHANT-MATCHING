@@ -22,6 +22,7 @@ class FarmerUploadRequest(BaseModel):
     quantity: float = Field(..., gt=0, description="Quantity in kg")
     price: float = Field(..., gt=0, description="Price per kg in ₹")
     location: LocationSchema
+    farmer_name: Optional[str] = Field(None, description="Name of the farmer")
 
 
 class ListingDocument(BaseModel):
@@ -38,6 +39,7 @@ class ListingDocument(BaseModel):
     quantity: float
     price: float
     location: LocationSchema
+    farmer_name: Optional[str] = None
     active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
 

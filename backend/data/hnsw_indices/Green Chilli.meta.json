@@ -1,0 +1,13 @@
+{
+  "next_id": 3,
+  "id_to_listing": {
+    "0": "9ab5a7b0-f64a-47b1-9544-fbd47be709dd",
+    "1": "73b68bf6-c40b-4d16-a6d1-f15febdef1c7",
+    "2": "42d40905-0850-4675-93f4-1fa080ac87a8"
+  },
+  "listing_to_id": {
+    "9ab5a7b0-f64a-47b1-9544-fbd47be709dd": 0,
+    "73b68bf6-c40b-4d16-a6d1-f15febdef1c7": 1,
+    "42d40905-0850-4675-93f4-1fa080ac87a8": 2
+  }
+}

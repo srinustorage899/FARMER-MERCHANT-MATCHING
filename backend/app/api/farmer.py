@@ -13,8 +13,9 @@ All business logic is delegated to services. The route handler only:
 import logging
 import uuid
 from datetime import datetime, timezone
+from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from app.config import SUPPORTED_CROPS, MONGO_COLLECTION_LISTINGS
 from app.database.mongodb import get_database
@@ -28,6 +29,27 @@ from app.services.msp_service import get_msp, is_above_msp
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/farmer", tags=["farmer"])
+
+
+# ─── GET all listings (for admin / demo view) ───────────────────────────
+@router.get("/listings")
+async def get_all_listings(
+    crop: Optional[str] = Query(None, description="Filter by crop name"),
+    active_only: bool = Query(True, description="Only show active listings"),
+):
+    """Return all farmer listings from MongoDB (for the demo dashboard)."""
+    db = get_database()
+    collection = db[MONGO_COLLECTION_LISTINGS]
+
+    query_filter: dict = {}
+    if active_only:
+        query_filter["active"] = True
+    if crop:
+        query_filter["crop"] = crop
+
+    cursor = collection.find(query_filter, {"_id": 0}).sort("created_at", -1)
+    docs = await cursor.to_list(length=500)
+    return {"count": len(docs), "listings": docs}
 
 
 @router.post("/upload", response_model=FarmerUploadResponse)
@@ -67,6 +89,7 @@ async def upload_listing(payload: FarmerUploadRequest):
         quantity=payload.quantity,
         price=payload.price,
         location=payload.location,
+        farmer_name=payload.farmer_name,
         active=True,
         created_at=datetime.now(timezone.utc),
     )

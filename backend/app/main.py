@@ -23,6 +23,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from pathlib import Path
 
@@ -33,6 +34,7 @@ from app.services.hnsw_instance import hnsw_service
 from app.worker.hnsw_worker import start_worker, stop_worker
 from app.api.farmer import router as farmer_router
 from app.api.merchant import router as merchant_router
+from app.api.viz import router as viz_router
 
 # ─── Logging ────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -106,6 +108,7 @@ app.add_middleware(
 # ─── Routers ────────────────────────────────────────────────────────────
 app.include_router(farmer_router)
 app.include_router(merchant_router)
+app.include_router(viz_router)
 
 
 # ─── Health check ───────────────────────────────────────────────────────
@@ -114,8 +117,41 @@ async def health():
     return {"status": "ok"}
 
 
+# ─── Demo / visualization pages ────────────────────────────────────────
+_backend_root = Path(__file__).resolve().parent.parent
+
+@app.get("/demo/farmers", tags=["demo"], include_in_schema=False)
+async def farmers_database_page():
+    """Serve the Farmers Database viewer page."""
+    return FileResponse(str(_backend_root / "farmers_database.html"))
+
+@app.get("/demo/hnsw", tags=["demo"], include_in_schema=False)
+async def hnsw_visualization_page():
+    """Serve the HNSW 3D visualization page."""
+    return FileResponse(str(_backend_root / "hnsw_visualization.html"))
+
+
 # ─── Serve frontend static files ────────────────────────────────────────
-# Mount the frontend directory so the full app is served from one origin.
+# Serve the React production build.
+# After running `npm run build` in frontend/, the output sits in frontend/dist.
 # This must come AFTER API routers so /api/* routes take priority.
-_frontend_dir = Path(__file__).resolve().parent.parent.parent / "frontend"
-app.mount("/", StaticFiles(directory=str(_frontend_dir), html=True), name="frontend")
+_frontend_dist = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
+
+if _frontend_dist.is_dir():
+    # Serve static assets (JS, CSS, images, etc.)
+    app.mount("/assets", StaticFiles(directory=str(_frontend_dist / "assets")), name="assets")
+
+    # SPA catch-all: any non-API route returns index.html so React Router works
+    @app.get("/{full_path:path}", tags=["frontend"])
+    async def serve_spa(full_path: str):
+        # If the requested file exists in dist/, serve it directly
+        file_path = _frontend_dist / full_path
+        if full_path and file_path.is_file():
+            return FileResponse(str(file_path))
+        # Otherwise fall back to index.html for client-side routing
+        return FileResponse(str(_frontend_dist / "index.html"))
+else:
+    logger.warning(
+        "Frontend build not found at %s — run 'npm run build' in frontend/",
+        _frontend_dist,
+    )
