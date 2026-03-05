@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
-import Navbar from '../components/Navbar';
+import DashboardLayout from '../components/DashboardLayout';
 import { getStoredUser, getActivity, formatDate } from '../utils/helpers';
 
 /* ── stat config ─────────────────────────────────────────────── */
@@ -66,9 +66,7 @@ export default function MerchantProfilePage() {
   ];
 
   return (
-    <>
-      <Navbar dashboardPath="/merchant" />
-
+    <DashboardLayout>
       <div className="pf">
         <Link className="pf-back" to="/merchant">
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -213,6 +211,6 @@ export default function MerchantProfilePage() {
           </div>
         </section>
       </div>
-    </>
+    </DashboardLayout>
   );
 }

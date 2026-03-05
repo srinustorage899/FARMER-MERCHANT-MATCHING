@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import DashboardLayout from '../components/DashboardLayout';
 import StatusMsg from '../components/StatusMsg';
 import LocationStatus from '../components/LocationStatus';
 import { useLocation } from '../hooks/useLocation';
@@ -172,9 +172,7 @@ export default function UploadCropPage() {
   }
 
   return (
-    <>
-      <Navbar dashboardPath="/farmer" />
-
+    <DashboardLayout>
       <div className="page-wrap">
         <Link className="back" to="/farmer">← {t('backToDashboard')}</Link>
 
@@ -331,6 +329,6 @@ export default function UploadCropPage() {
           </div>
         )}
       </div>
-    </>
+    </DashboardLayout>
   );
 }

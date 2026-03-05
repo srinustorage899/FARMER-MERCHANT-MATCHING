@@ -14,10 +14,50 @@ from fastapi import APIRouter, HTTPException
 
 from app.config import SUPPORTED_CROPS, DEFAULT_SEARCH_RADIUS
 from app.models.merchant_model import MerchantSearchRequest, MerchantSearchResponse
+from app.models.user_model import MerchantUser
+from app.database.userdb import get_merchants_collection
+
+router = APIRouter(prefix="/api/merchant", tags=["merchant"])
+
+@router.post("/register")
+async def register_merchant(payload: MerchantUser):
+    """
+    Register a new merchant account in the merchants collection.
+    If the email already exists, do nothing (idempotent).
+    """
+    merchants = get_merchants_collection()
+    # Check if merchant already exists
+    existing = await merchants.find_one({"email": payload.email})
+    if existing:
+        return {"message": "Merchant already exists", "email": payload.email}
+    # Insert new merchant
+    doc = payload.model_dump()
+    await merchants.insert_one(doc)
+    return {"message": "Merchant registered", "email": payload.email}
 from app.services.vector_service import search_farmers
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/merchant", tags=["merchant"])
+
+# ─── Merchant Login Endpoint ──────────────────────────────────────────
+from fastapi import status
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, EmailStr
+
+class MerchantLoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+@router.post("/login")
+async def login_merchant(payload: MerchantLoginRequest):
+    merchants = get_merchants_collection()
+    merchant = await merchants.find_one({"email": payload.email})
+    if not merchant:
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": "Invalid email or password"})
+    if merchant["password"] != payload.password:
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": "Invalid email or password"})
+    # Remove password from response
+    merchant.pop("password", None)
+    return {"message": "Login successful", "merchant": merchant}
 
 
 @router.post("/search", response_model=MerchantSearchResponse)

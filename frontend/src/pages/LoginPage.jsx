@@ -114,17 +114,34 @@ export default function LoginPage() {
     if (Object.keys(errs).length) return;
 
     setSignupLoading(true);
-    setTimeout(() => {
-      setStoredUser({
-        name: signupName,
-        email: signupEmail,
-        password: signupPassword,
-        role: signupRole,
-      });
-      login({ email: signupEmail, name: signupName, role: signupRole });
-      setSignupSuccess('Account created! Redirecting…');
-      setTimeout(() => redirectByRole(signupRole), 700);
-    }, 800);
+    const userData = {
+      name: signupName,
+      email: signupEmail,
+      password: signupPassword,
+      role: signupRole,
+    };
+    // Store locally
+    setStoredUser(userData);
+    // Register merchant in backend if role is Merchant
+    if (signupRole === 'Merchant') {
+      fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/merchant/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: signupName,
+          email: signupEmail,
+          password: signupPassword,
+        }),
+      })
+      .then(r => r.json())
+      .then(res => {
+        // Optionally handle response
+      })
+      .catch(() => {});
+    }
+    login({ email: signupEmail, name: signupName, role: signupRole });
+    setSignupSuccess('Account created! Redirecting…');
+    setTimeout(() => redirectByRole(signupRole), 700);
   }
 
   /* ── Inline field error ── */

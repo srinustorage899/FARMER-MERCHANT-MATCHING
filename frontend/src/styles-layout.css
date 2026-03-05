@@ -1,0 +1,297 @@
+/* ═══════════════════════════════════════════════════════════════════
+   AGRIMATCH — DASHBOARD LAYOUT + SIDEBAR
+   Clean, compact SaaS layout
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Layout shell ─────────────────────────────────────────────── */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg);
+}
+
+/* ── Sidebar container ────────────────────────────────────────── */
+.layout__sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 200;
+}
+
+/* ── Sidebar component ────────────────────────────────────────── */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-right: 1px solid var(--gray-200);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-200) transparent;
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 3px; }
+
+/* ── Brand ── */
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.sidebar__logo {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.sidebar__app-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  letter-spacing: -.01em;
+}
+
+.sidebar__close {
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gray-400);
+  padding: 4px;
+  border-radius: 6px;
+}
+.sidebar__close:hover { background: var(--gray-100); color: var(--gray-600); }
+
+/* ── User pill ── */
+.sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.sidebar__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: .8rem;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+.sidebar__avatar--farmer   { background: var(--green-700); }
+.sidebar__avatar--merchant { background: var(--blue-600); }
+
+.sidebar__user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar__user-name {
+  font-size: .8125rem;
+  font-weight: 500;
+  color: var(--gray-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__user-role {
+  font-size: .6875rem;
+  color: var(--gray-400);
+  text-transform: capitalize;
+}
+
+/* ── Navigation ── */
+.sidebar__nav {
+  flex: 1;
+  padding: 12px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sidebar__nav-label {
+  font-size: .625rem;
+  font-weight: 600;
+  color: var(--gray-400);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 0 8px 6px;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: .8125rem;
+  font-weight: 450;
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: background .12s, color .12s;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+}
+
+.sidebar__link:hover {
+  background: var(--gray-50);
+  color: var(--gray-900);
+}
+
+.sidebar__link--active {
+  background: var(--green-50);
+  color: var(--green-800);
+  font-weight: 500;
+}
+
+.sidebar__link--active .sidebar__link-icon {
+  color: var(--green-700);
+}
+
+.sidebar__link-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  flex-shrink: 0;
+  color: var(--gray-400);
+  transition: color .12s;
+}
+
+.sidebar__link:hover .sidebar__link-icon {
+  color: var(--gray-600);
+}
+
+.sidebar__link-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Bottom section ── */
+.sidebar__bottom {
+  padding: 6px 8px 12px;
+  border-top: 1px solid var(--gray-100);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sidebar__logout {
+  color: var(--red-500);
+}
+.sidebar__logout:hover {
+  background: var(--red-50);
+  color: var(--red-700);
+}
+.sidebar__logout .sidebar__link-icon {
+  color: var(--red-500);
+}
+
+/* ── Main area ────────────────────────────────────────────────── */
+.layout__main {
+  flex: 1;
+  margin-left: 240px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout__content {
+  flex: 1;
+  padding: 0;
+}
+
+/* ── Mobile top bar (hidden on desktop) ───────────────────────── */
+.layout__topbar {
+  display: none;
+}
+
+.layout__hamburger {
+  display: none;
+}
+
+/* ── Overlay (mobile only) ────────────────────────────────────── */
+.layout__overlay {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE — tablet & mobile
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .layout__sidebar {
+    transform: translateX(-100%);
+    transition: transform .2s ease;
+  }
+
+  .layout__sidebar--open {
+    transform: translateX(0);
+  }
+
+  .layout__topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .layout__hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    background: var(--gray-50);
+    cursor: pointer;
+    color: var(--gray-500);
+  }
+  .layout__hamburger:hover { background: var(--gray-100); color: var(--gray-700); }
+
+  .layout__topbar-brand {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-900);
+  }
+
+  .sidebar__close {
+    display: flex;
+  }
+
+  .layout__main {
+    margin-left: 0;
+  }
+
+  .layout__overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .3);
+    z-index: 150;
+  }
+}

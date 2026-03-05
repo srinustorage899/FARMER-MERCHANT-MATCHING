@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import { getOrders, formatDate } from '../utils/helpers';
@@ -50,9 +50,7 @@ export default function MyOrdersPage() {
   }, [allOrders]);
 
   return (
-    <>
-      <Navbar dashboardPath="/merchant" />
-
+    <DashboardLayout>
       <div className="mo">
         {/* Header */}
         <div className="mo__head">
@@ -191,6 +189,6 @@ export default function MyOrdersPage() {
           </div>
         )}
       </div>
-    </>
+    </DashboardLayout>
   );
 }

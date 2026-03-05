@@ -1,7 +1,11 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
-import Navbar from '../components/Navbar';
+import { getActivity, getOrderCount, formatDate } from '../utils/helpers';
+import DashboardLayout from '../components/DashboardLayout';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function FarmerDashboard() {
   const { session } = useAuth();
@@ -9,11 +13,27 @@ export default function FarmerDashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? t('goodMorning') : hour < 17 ? t('goodAfternoon') : t('goodEvening');
 
+  const [dbStats, setDbStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const activity = getActivity(session?.email);
+  const connections = activity?.contacts?.length || 0;
+  const totalOrders = getOrderCount(session?.email);
+
+  useEffect(() => {
+    if (!session?.name) { setLoading(false); return; }
+    fetch(`${API}/api/farmer/stats?farmer_name=${encodeURIComponent(session.name)}`)
+      .then(r => r.json())
+      .then(data => setDbStats(data))
+      .catch(() => setDbStats(null))
+      .finally(() => setLoading(false));
+  }, [session?.name]);
+
   const STATS = [
-    { icon: '📦', value: '—', label: t('activeListings'), color: '#4caf50' },
-    { icon: '👁️', value: '—', label: t('profileViews'), color: '#2196f3' },
-    { icon: '🤝', value: '—', label: t('connections'), color: '#ff9800' },
-    { icon: '⭐', value: '—', label: t('rating'), color: '#f44336' },
+    { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>, value: loading ? '…' : (dbStats?.active_listings ?? 0), label: t('activeListings'), color: '#4caf50' },
+    { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>, value: loading ? '…' : (dbStats?.total_listings ?? 0), label: t('totalListings') || 'Total Listings', color: '#2196f3' },
+    { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>, value: connections, label: t('connections'), color: '#ff9800' },
+    { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>, value: totalOrders, label: t('orders') || 'Orders', color: '#f44336' },
   ];
 
   const ACTIONS = [
@@ -39,22 +59,35 @@ export default function FarmerDashboard() {
     },
   ];
 
-  const ACTIVITY = [
-    { text: 'Listed 500 kg Tomato', time: t('justNow'), dot: '#4caf50' },
-    { text: 'Profile viewed by Fresh Mart', time: t('hrsAgo').replace('{0}', '2'), dot: '#2196f3' },
-    { text: 'Price updated for Onion', time: t('yesterday'), dot: '#ff9800' },
-  ];
+  // Build activity from real data
+  const recentUploads = (activity?.uploads || []).slice(0, 3).map(u => ({
+    text: `Listed ${u.quantity || ''} kg ${u.crop || 'crop'}`,
+    time: formatDate(u.timestamp),
+    dot: '#4caf50',
+  }));
+  const recentContacts = (activity?.contacts || []).slice(0, 2).map(c => ({
+    text: `Connected with ${c.merchant || c.name || 'a merchant'}`,
+    time: formatDate(c.timestamp),
+    dot: '#2196f3',
+  }));
+  const recentDbListings = (dbStats?.recent_listings || []).slice(0, 3).map(l => ({
+    text: `${l.crop} — ${l.quantity} kg @ ₹${l.price}/kg`,
+    time: formatDate(l.created_at),
+    dot: l.active ? '#4caf50' : '#999',
+  }));
+  const ACTIVITY = recentUploads.length || recentContacts.length
+    ? [...recentUploads, ...recentContacts].slice(0, 5)
+    : recentDbListings.length
+      ? recentDbListings
+      : [{ text: t('noRecentActivity') || 'No recent activity', time: '', dot: '#ccc' }];
 
   return (
-    <>
-      <Navbar dashboardPath="/farmer" />
-
+    <DashboardLayout>
       <div className="db">
         {/* ── Welcome banner ── */}
         <section className="db-banner db-banner--farmer">
           <div className="db-banner__bg" />
           <div className="db-banner__content">
-            <span className="db-banner__wave">👋</span>
             <h1 className="db-banner__title">{greeting}, {session?.name}!</h1>
             <p className="db-banner__sub">{t('farmerDashSub')}</p>
           </div>
@@ -123,13 +156,13 @@ export default function FarmerDashboard() {
 
         {/* ── Tip card ── */}
         <section className="db-tip">
-          <span className="db-tip__icon">💡</span>
+          <span className="db-tip__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg></span>
           <div>
             <span className="db-tip__title">{t('proTip')}</span>
             <p className="db-tip__text">{t('farmerTip')}</p>
           </div>
         </section>
       </div>
-    </>
+    </DashboardLayout>
   );
 }

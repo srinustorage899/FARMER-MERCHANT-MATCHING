@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 
@@ -62,9 +62,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <>
-      <Navbar dashboardPath={dashboardPath} />
-
+    <DashboardLayout>
       <div className="page-wrap">
         <div className="st">
           {/* Back link */}
@@ -184,6 +182,6 @@ export default function SettingsPage() {
           </section>
         </div>
       </div>
-    </>
+    </DashboardLayout>
   );
 }

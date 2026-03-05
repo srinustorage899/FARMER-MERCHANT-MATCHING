@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import DashboardLayout from '../components/DashboardLayout';
 import StatusMsg from '../components/StatusMsg';
 import LocationStatus from '../components/LocationStatus';
 import OrderModal from '../components/OrderModal';
@@ -284,9 +284,7 @@ export default function FindFarmersPage() {
   }, []);
 
   return (
-    <>
-      <Navbar dashboardPath="/merchant" />
-
+    <DashboardLayout>
       <div className="ff">
         {/* ── Page header ── */}
         <div className="ff-head">
@@ -569,7 +567,7 @@ export default function FindFarmersPage() {
           onOrderPlaced={handleOrderPlaced}
         />
       )}
-    </>
+    </DashboardLayout>
   );
 }
 
